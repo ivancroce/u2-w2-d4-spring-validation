@@ -65,11 +65,11 @@ public class AuthorsController {
     }
 
     // 6. PUT
-    @PatchMapping("/{userId}/avatar")
-    public String uploadImage(@RequestParam("avatar") MultipartFile file) {
+    @PatchMapping("/{authorId}/avatar")
+    public Author uploadImage(@RequestParam("avatar") MultipartFile file, @PathVariable UUID authorId) {
         // "avatar" must match EXACTLY the FormData field into which the frontend will insert the image
         System.out.println(file.getOriginalFilename());
         System.out.println(file.getSize());
-        return this.authorsService.uploadAvatar(file);
+        return this.authorsService.uploadAvatar(file, authorId);
     }
 }

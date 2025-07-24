@@ -78,11 +78,16 @@ public class AuthorsService {
         this.authorRepository.delete(found);
     }
 
-    public String uploadAvatar(MultipartFile file) {
+    public Author uploadAvatar(MultipartFile file, UUID authorId) {
         try {
+            Author found = this.findById(authorId);
+
             Map result = imgUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
             String imageURL = (String) result.get("url"); // I read the url from Cloudinary's response.
-            return imageURL;
+
+            found.setAvatar(imageURL);
+
+            return authorRepository.save(found);
         } catch (Exception e) {
             throw new BadRequestException("There were problems saving the file.");
         }
