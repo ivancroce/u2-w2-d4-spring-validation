@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -61,6 +62,14 @@ public class BlogPostsController {
     @ResponseStatus(HttpStatus.NO_CONTENT) // 204
     public void findBlogPostByIdAndDelete(@PathVariable UUID blogPostId) {
         this.blogPostsService.findByIdAndDelete(blogPostId);
+    }
+
+    // 6. PATCH http://localhost:3001//blogPosts/{blogPostId}/cover
+    @PatchMapping("/{blogPostId}/cover")
+    public BlogPost uploadImg(@PathVariable UUID blogPostId, @RequestParam("cover") MultipartFile file) {
+        System.out.println(file.getOriginalFilename());
+        System.out.println(file.getSize());
+        return this.blogPostsService.uploadCover(blogPostId, file);
     }
 }
 

@@ -1,7 +1,10 @@
 package ictech.u2_w2_d4_spring_validation.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import ictech.u2_w2_d4_spring_validation.entities.Author;
 import ictech.u2_w2_d4_spring_validation.entities.BlogPost;
+import ictech.u2_w2_d4_spring_validation.exceptions.BadRequestException;
 import ictech.u2_w2_d4_spring_validation.exceptions.NotFoundException;
 import ictech.u2_w2_d4_spring_validation.payloads.NewBlogPostDTO;
 import ictech.u2_w2_d4_spring_validation.repositories.BlogPostRepository;
@@ -12,7 +15,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -23,6 +28,9 @@ public class BlogPostsService {
 
     @Autowired
     AuthorsService authorsService;
+
+    @Autowired
+    Cloudinary imgUploader;
 
     public BlogPost saveBlogPost(NewBlogPostDTO payload) {
 
@@ -64,5 +72,20 @@ public class BlogPostsService {
     public void findByIdAndDelete(UUID blogPostId) {
         BlogPost found = this.findById(blogPostId);
         this.blogPostRepository.delete(found);
+    }
+
+    public BlogPost uploadCover(UUID blogPostId, MultipartFile file) {
+        try {
+            BlogPost found = this.findById(blogPostId);
+
+            Map result = imgUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            String imgURL = (String) result.get("url");
+
+            found.setCover(imgURL);
+
+            return blogPostRepository.save(found);
+        } catch (Exception e) {
+            throw new BadRequestException("There were problems saving the file.");
+        }
     }
 }

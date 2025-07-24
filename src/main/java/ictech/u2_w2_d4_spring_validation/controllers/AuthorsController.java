@@ -64,7 +64,7 @@ public class AuthorsController {
         this.authorsService.findByIdAndDelete(authorId);
     }
 
-    // 6. PUT
+    // 6. PATCH http://localhost:3001/authors/{authorId}/avatar
     @PatchMapping("/{authorId}/avatar")
     public Author uploadImage(@RequestParam("avatar") MultipartFile file, @PathVariable UUID authorId) {
         // "avatar" must match EXACTLY the FormData field into which the frontend will insert the image
