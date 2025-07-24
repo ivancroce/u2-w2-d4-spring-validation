@@ -1,6 +1,7 @@
 package ictech.u2_w2_d4_spring_validation.exceptions;
 
 import ictech.u2_w2_d4_spring_validation.payloads.ErrorsPayload;
+import ictech.u2_w2_d4_spring_validation.payloads.ErrorsWithListDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -10,6 +11,11 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class ExceptionsHandler {
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorsWithListDTO handleValidationErrors(ValidationException ex) {
+        return new ErrorsWithListDTO(ex.getMessage(), LocalDateTime.now(), ex.getErrorMessages());
+    }
 
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 400

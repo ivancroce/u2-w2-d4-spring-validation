@@ -3,7 +3,7 @@ package ictech.u2_w2_d4_spring_validation.services;
 import ictech.u2_w2_d4_spring_validation.entities.Author;
 import ictech.u2_w2_d4_spring_validation.entities.BlogPost;
 import ictech.u2_w2_d4_spring_validation.exceptions.NotFoundException;
-import ictech.u2_w2_d4_spring_validation.payloads.NewBlogPostPayload;
+import ictech.u2_w2_d4_spring_validation.payloads.NewBlogPostDTO;
 import ictech.u2_w2_d4_spring_validation.repositories.BlogPostRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +24,11 @@ public class BlogPostsService {
     @Autowired
     AuthorsService authorsService;
 
-    public BlogPost saveBlogPost(NewBlogPostPayload payload) {
+    public BlogPost saveBlogPost(NewBlogPostDTO payload) {
 
-        Author author = authorsService.findById(payload.getAuthorId());
+        Author author = authorsService.findById(payload.authorId());
 
-        BlogPost newBlogPost = new BlogPost(payload.getGenre(), payload.getTitle(), "https://picsum.photos/200/300", payload.getContent(), payload.getReadingTime(), author);
+        BlogPost newBlogPost = new BlogPost(payload.genre(), payload.title(), "https://picsum.photos/200/300", payload.content(), payload.readingTime(), author);
 
         log.info("The Blog Post with title '" + newBlogPost.getTitle() + "' was created.");
         return this.blogPostRepository.save(newBlogPost);
@@ -44,16 +44,16 @@ public class BlogPostsService {
         return this.blogPostRepository.findById(blogPostId).orElseThrow(() -> new NotFoundException(blogPostId));
     }
 
-    public BlogPost findByIdAndUpdate(UUID blogPostId, NewBlogPostPayload payload) {
+    public BlogPost findByIdAndUpdate(UUID blogPostId, NewBlogPostDTO payload) {
         BlogPost found = this.findById(blogPostId);
 
-        Author newAuthor = authorsService.findById(payload.getAuthorId());
+        Author newAuthor = authorsService.findById(payload.authorId());
         found.setAuthor(newAuthor);
 
-        found.setGenre(payload.getGenre());
-        found.setTitle(payload.getTitle());
-        found.setContent(payload.getContent());
-        found.setReadingTime(payload.getReadingTime());
+        found.setGenre(payload.genre());
+        found.setTitle(payload.title());
+        found.setContent(payload.content());
+        found.setReadingTime(payload.readingTime());
 
         BlogPost updatedBlogPost = this.blogPostRepository.save(found);
 

@@ -1,11 +1,15 @@
 package ictech.u2_w2_d4_spring_validation.controllers;
 
 import ictech.u2_w2_d4_spring_validation.entities.BlogPost;
-import ictech.u2_w2_d4_spring_validation.payloads.NewBlogPostPayload;
+import ictech.u2_w2_d4_spring_validation.exceptions.ValidationException;
+import ictech.u2_w2_d4_spring_validation.payloads.NewBlogPostDTO;
+import ictech.u2_w2_d4_spring_validation.payloads.NewBlogPostRespDTO;
 import ictech.u2_w2_d4_spring_validation.services.BlogPostsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -30,8 +34,14 @@ public class BlogPostsController {
     // 2. POST http://localhost:3001/blogPosts (+ payload)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
-    public BlogPost createBlogPost(@RequestBody NewBlogPostPayload payload) {
-        return this.blogPostsService.saveBlogPost(payload);
+    public NewBlogPostRespDTO createBlogPost(@RequestBody @Validated NewBlogPostDTO payload, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            validationResult.getAllErrors().forEach(System.out::println);
+            throw new ValidationException(validationResult.getFieldErrors().stream().map(fieldError -> fieldError.getDefaultMessage()).toList());
+        } else {
+            BlogPost newBlogPost = this.blogPostsService.saveBlogPost(payload);
+            return new NewBlogPostRespDTO(newBlogPost.getId());
+        }
     }
 
     // 3. GET http://localhost:3001/blogPosts/{blogPostId}
@@ -42,7 +52,7 @@ public class BlogPostsController {
 
     // 4. PUT http://localhost:3001/blogPosts/{blogPostId} (+ payload)
     @PutMapping("/{blogPostId}")
-    public BlogPost findBlogPostByIdAndUpdate(@PathVariable UUID blogPostId, @RequestBody NewBlogPostPayload payload) {
+    public BlogPost findBlogPostByIdAndUpdate(@PathVariable UUID blogPostId, @RequestBody NewBlogPostDTO payload) {
         return this.blogPostsService.findByIdAndUpdate(blogPostId, payload);
     }
 
